@@ -95,7 +95,21 @@ def autonomous():
     cylinder_left.set(True)
     cylinder_right.set(True)
     drive_motor_group.spin_for(FORWARD, 540)
-    right_drive_1.spin_for(FORWARD, 1440)
+    right_drive_1.spin_for(FORWARD, 1240)
+    drive_motor_group.spin(FORWARD, 50, PERCENT)
+    wait(1000)
+    drive_motor_group.stop()
+    conveyor_belt_1.spin_for(FORWARD, 1000)
+    
+    drive_motor_group.spin_for(FORWARD, -400)
+    right_drive_1.spin_for(FORWARD, 650, wait=False)
+    left_drive_1.spin_for(REVERSE, 650, wait=True)
+    drive_motor_group.spin_for(FORWARD, 90)
+    
+    cylinder_left.set(False)
+    cylinder_right.set(False)
+    
+    conveyor_belt_1.spin_for(REVERSE, 1000)
 
 # Run the drive code
 drive = Thread(autonomous)
