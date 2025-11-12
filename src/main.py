@@ -92,24 +92,45 @@ def drive_task():
         sleep(20)
 
 def autonomous():
+    wait(5000)
+    drive_motor_group.set_velocity(70, PERCENT)
+    right_drive_1.set_velocity(70, PERCENT)
+    left_drive_1.set_velocity(70, PERCENT)
+    conveyor_belt_1.set_velocity(70, PERCENT)
+    
     cylinder_left.set(True)
     cylinder_right.set(True)
-    drive_motor_group.spin_for(FORWARD, 540)
-    right_drive_1.spin_for(FORWARD, 1240)
-    drive_motor_group.spin(FORWARD, 50, PERCENT)
-    wait(1000)
-    drive_motor_group.stop()
-    conveyor_belt_1.spin_for(FORWARD, 1000)
     
-    drive_motor_group.spin_for(FORWARD, -400)
+    drive_motor_group.spin_for(FORWARD, 440)
+    right_drive_1.spin_for(FORWARD, 1300)
+    drive_motor_group.spin(FORWARD)
+    wait(800)
+    drive_motor_group.stop()
+    conveyor_belt_1.spin(FORWARD)
+    wait(1500)
+    conveyor_belt_1.stop()
+    
+    drive_motor_group.spin_for(FORWARD, -450)
+    right_drive_1.set_velocity(40, PERCENT)
+    left_drive_1.set_velocity(40, PERCENT)
     right_drive_1.spin_for(FORWARD, 650, wait=False)
-    left_drive_1.spin_for(REVERSE, 650, wait=True)
-    drive_motor_group.spin_for(FORWARD, 90)
+    left_drive_1.spin_for(REVERSE, 620, wait=True)
+    right_drive_1.set_velocity(70, PERCENT)
+    left_drive_1.set_velocity(70, PERCENT)
+    drive_motor_group.spin_for(FORWARD, 200)
     
     cylinder_left.set(False)
     cylinder_right.set(False)
+    wait(1000)
     
-    conveyor_belt_1.spin_for(REVERSE, 1000)
+    conveyor_belt_1.spin(REVERSE)
+    wait(1500)
+    conveyor_belt_1.stop()
+    
+    drive_motor_group.spin_for(FORWARD, -400)
+    right_drive_1.spin_for(REVERSE, 350, wait=False)
+    left_drive_1.spin_for(FORWARD, 350, wait=True)
+    drive_motor_group.spin_for(FORWARD, 1000)
 
 # Run the drive code
 drive = Thread(autonomous)
