@@ -107,7 +107,7 @@ def autonomous():
     wait(700)
     drive_motor_group.stop()
     conveyor_belt_1.spin(FORWARD)
-    wait(1500)
+    wait(1700)
     conveyor_belt_1.stop()
     
     drive_motor_group.spin_for(FORWARD, -400)
@@ -124,20 +124,21 @@ def autonomous():
     wait(1000)
     
     conveyor_belt_1.spin(REVERSE)
-    wait(1500)
+    wait(2000)
     conveyor_belt_1.stop()
     
     drive_motor_group.spin_for(FORWARD, -200)
-    right_drive_1.spin_for(REVERSE, 200, wait=False)
-    left_drive_1.spin_for(FORWARD, 200, wait=True)
-    drive_motor_group.spin_for(FORWARD, 250)
+    right_drive_1.spin_for(REVERSE, 180, wait=False)
+    left_drive_1.spin_for(FORWARD, 180, wait=True)
+    drive_motor_group.spin_for(FORWARD, 300)
+    cylinder_left.set(True)
+    cylinder_right.set(True)
+    wait(500)
     conveyor_belt_1.spin(FORWARD)
     wait(700)
-    left_drive_1.spin_for(FORWARD, 150)
-    wait(700)
+    left_drive_1.spin_for(FORWARD, 50)
+    wait(1000)
     conveyor_belt_1.stop()
 
 # Run the drive code
 drive = Thread(autonomous)
-
-# Python now drops into REPL
