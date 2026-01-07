@@ -11,11 +11,9 @@ from vex import *
 
 # Brain should be defined by default
 brain = Brain()
-brain.screen.print("Good Luck Autodogs!! You got this!")
 
 # The controller
 controller = Controller()
-controller.screen.print("Good Luck Autodogs!! You got this!")
 
 cylinder_left = DigitalOut(brain.three_wire_port.g)
 cylinder_right = DigitalOut(brain.three_wire_port.h)
@@ -26,6 +24,8 @@ conveyor_belt_R = Motor(Ports.PORT11, GearSetting.RATIO_18_1, False)
 # One motor in the group is mounted opposite; keep this one non-reversed
 conveyor_belt_L = Motor(Ports.PORT20, GearSetting.RATIO_18_1, True)
 conveyor_belt_1 = MotorGroup(conveyor_belt_R, conveyor_belt_L)
+
+intake_motor = Motor(Ports.PORT12, GearSetting.RATIO_18_1, False)
 
 # Drive motors
 left_drive_1 = Motor(Ports.PORT1, GearSetting.RATIO_18_1, False)
@@ -41,15 +41,20 @@ MAX_SPEED = 100
 def drive_task():
     drive_left = 0
     drive_right = 0
+    cylinder_counter = 0
+    cylinder_boolean = False
     
     cylinder_left.set(False)
     cylinder_right.set(False)
 
     # loop forever
     while True:
-        brain.screen.clear_screen()
         brain.screen.set_cursor(1,1)
-        
+        controller.screen.set_cursor(3, 0)
+        controller.screen.print("Cylinder Counter: " + str(cylinder_counter))
+        brain.screen.print("Cylinder Counter: " + str(cylinder_counter))
+        if (cylinder_counter > 15):
+            controller.rumble('.')        
 
         # joystick tank control
         try:
@@ -60,9 +65,6 @@ def drive_task():
             drive_right = (controller.axis2.position() / 21.5)*(controller.axis2.position() / 21.5)*(controller.axis2.position() / 21.5)*((controller.axis2.position()*controller.axis2.position())/abs(controller.axis2.position()*controller.axis2.position()))
         except ZeroDivisionError:
             drive_right = 0
-        brain.screen.print(drive_left)
-        brain.screen.new_line()
-        brain.screen.print(drive_right)
         # button control
         # lower conveyor belt
         if (controller.buttonR1.pressing()):
@@ -73,9 +75,15 @@ def drive_task():
             conveyor_belt_1.stop()
             
         if (controller.buttonL2.pressing()):
+            if (cylinder_boolean == False):
+                cylinder_boolean = True
+                cylinder_counter += 0.5
             cylinder_left.set(True)
             cylinder_right.set(True)
         elif (controller.buttonL1.pressing()):
+            if (cylinder_boolean == True):
+                cylinder_boolean = False
+                cylinder_counter += 0.5
             cylinder_left.set(False)
             cylinder_right.set(False)
 
@@ -92,18 +100,18 @@ def drive_task():
         # The drivetrain
         left_drive_1.spin(FORWARD, drive_left, PERCENT)
         right_drive_1.spin(FORWARD, drive_right, PERCENT)
-        # No need to run too fast
+
         sleep(20)
 
 def autonomous():
-    
     wait(5000)
     
     #Set motor Values
-    drive_motor_group.set_velocity(70, PERCENT)
-    right_drive_1.set_velocity(70, PERCENT)
-    left_drive_1.set_velocity(70, PERCENT)
-    conveyor_belt_1.set_velocity(70, PERCENT)
+    drive_motor_group.set_velocity(100, PERCENT)
+    right_drive_1.set_velocity(100, PERCENT)
+    left_drive_1.set_velocity(100, PERCENT)
+    intake_motor.set_velocity(100, PERCENT)
+    conveyor_belt_1.set_velocity(100, PERCENT)
     
     #set cylinders to down
     cylinder_left.set(True)
@@ -116,8 +124,10 @@ def autonomous():
     wait(700)
     drive_motor_group.stop()
     conveyor_belt_1.spin(FORWARD)
+    intake_motor.spin(FORWARD)
     wait(2000)
     conveyor_belt_1.stop()
+    intake_motor.stop()
     
     #move away from feeder
     drive_motor_group.spin_for(FORWARD, -400)
@@ -127,8 +137,8 @@ def autonomous():
     left_drive_1.set_velocity(40, PERCENT)
    
    #180 degree turn to face long goal
-    right_drive_1.spin_for(FORWARD, 620, wait=False)
-    left_drive_1.spin_for(REVERSE, 620, wait=True)
+    right_drive_1.spin_for(FORWARD, 720, wait=False)
+    left_drive_1.spin_for(REVERSE, 720, wait=True)
     
     
     #set velocities back to normal and go towards goal
@@ -143,8 +153,10 @@ def autonomous():
     
     #unload Balls Stored
     conveyor_belt_1.spin(REVERSE)
+    intake_motor.spin(REVERSE)
     wait(3000)
     conveyor_belt_1.stop()
+    intake_motor.stop()
 
     #back away from goal and turn 90 degress right
     drive_motor_group.spin_for(FORWARD, -200)
@@ -160,18 +172,13 @@ def autonomous():
     
 
     conveyor_belt_1.spin(FORWARD)
+    intake_motor.spin(FORWARD)
     drive_motor_group.set_velocity(30, PERCENT)
     drive_motor_group.spin_for(FORWARD, 400)
     
     wait(500)
-
     conveyor_belt_1.stop()
-    conveyor_belt_1.spin(FORWARD)
-    drive_motor_group.set_velocity(40, PERCENT)
-    drive_motor_group.spin_for(FORWARD, 360)
-    drive_motor_group.set_velocity(70, PERCENT)
-    wait(1000)
-    conveyor_belt_1.stop()
+    intake_motor.stop()
 
 # Run the drive code
-drive = Thread(drive_task)
+drive = Thread(autonomous)
